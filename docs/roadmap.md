@@ -231,10 +231,14 @@ flipped from honest loss to WIN (2026-06-25):** composing FP16 model loading
 (B-022 loader cast) + capture-safe Storage + whole-model CUDA-graph decode AND
 prefill + GQA-native fused decode/prefill attention, the matched-FP16 head-to-head
 on TinyLlama-1.1B is **decode 321.1 vs 305.8 tok/s (+5.0%), TPOT 3.115 vs
-3.275 ms, end-to-end ~403 vs 420 ms — all wins**. The only sub-metric still
-behind is TTFT/prefill (7.28 vs 5.47 ms), bounded by the shared cuBLAS GEMM floor
-both engines hit at M=128 (closing it needs the WMMA tensor-core FlashAttention +
-elementwise-fusion follow-up, B-024). Detail in `vllm_serving.md`.
+3.275 ms, end-to-end ~400 vs 420 ms — all wins**. The only sub-metric still
+behind is TTFT/prefill, now within 7 % after two prefill optimizations landed
+2026-06-25: B-024+ WMMA tensor-core FlashAttention (7.28 → 6.59 ms) and B-024c
+stride-aware/BSHD attention layout (removes per-layer `contiguous`/transpose
+copies, `strided_copy` 25.8 % → 15.9 %; 6.59 → **5.86 ms**, vs vLLM 5.47, gap
+1.33× → 1.07×). The residual is the shared cuBLAS GEMM floor + Tesseract's
+un-fused norm/RoPE/residual launches (closing it fully needs B-024e: BSHD-native
+RoPE + elementwise fusion). Detail in `vllm_serving.md`.
 
 **Headline of the original idea (preserved):** 3D parallelism as IR passes and
 the FSDP-like distributed API live in M4/M5 across tracks B3 (TP prototype) and

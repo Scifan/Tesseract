@@ -106,5 +106,8 @@ generated source re-openable via its `@tsb-graph` header).
 - The Python-binding maturity gap is documented but **not** on Studio's critical
   path (native embedding sidesteps it); expanding the bindings remains a
   separate, optional adoption task.
-- B-024+ WMMA tensor-core FlashAttention (the vLLM-TTFT closer) is unchanged and
-  still GPU-gated; Studio is the productive work done while a card frees up.
+- B-024+ WMMA tensor-core FlashAttention (the vLLM-TTFT closer) has since landed
+  (2026-06-25), together with B-024c stride-aware/BSHD attention layout — TTFT
+  7.28 → 5.86 ms (vLLM 5.47, gap now 1.07×). Studio was the productive work done
+  while cards were busy; the remaining TTFT closer is B-024e (BSHD-native RoPE +
+  elementwise fusion).

@@ -111,7 +111,7 @@ reference at matched config. Full detail per row lives under
 | 12 | graph JIT (CPU) vs eager | MLP fwd+bwd+Adam | Tesseract eager | 1.0× | **5.5–8.5×** | internal speedup | `ir_backward.md` |
 | 13 | graph JIT → GPU cubin | elementwise, sm_89 | eager CUDA | — | **bit-close parity** | gpu.module→PTX→cubin→launch | `ir_gpu_jit.md` |
 | 14 | single-stream serving decode | TinyLlama-1.1B, 128/128, FP16 | vLLM 0.11 FP16 | 3.275 ms (305.8 tok/s) | **3.115 ms (321.1 tok/s)** | **WIN +5.0% tok/s, −4% e2e** | `vllm_serving.md` |
-| 14b | single-stream serving TTFT | TinyLlama-1.1B, 128/128, FP16 | vLLM 0.11 FP16 | **5.47 ms** | 7.28 ms | LOSS 1.33× (prefill GEMM+attn) | `vllm_serving.md` |
+| 14b | single-stream serving TTFT | TinyLlama-1.1B, 128/128, FP16 | vLLM 0.11 FP16 | 5.47 ms | **5.86 ms** | loss **1.07×** (shared GEMM floor) | `vllm_serving.md` |
 
 **Net read (beat-every-axis strategy):** Tesseract wins *outright* on every
 kernel/op/architecture line, and—after composing FP16 + whole-model CUDA-graph
@@ -151,8 +151,8 @@ gen 128, single stream, verified-clean RTX 5880 Ada) is:
 |-----------------------|---------------:|----------------------------:|---------|
 | decode throughput     | 305.8 tok/s    | **321.1 tok/s**             | **WIN +5.0%** |
 | TPOT (per-token)      | 3.275 ms       | **3.115 ms**                | **WIN** |
-| end-to-end (128 tok)  | 420.1 ms       | **~403 ms**                 | **WIN −4%** |
-| TTFT (prefill)        | **5.47 ms**    | 7.28 ms                     | loss 1.33× |
+| end-to-end (128 tok)  | 420.1 ms       | **~400 ms**                 | **WIN −5%** |
+| TTFT (prefill)        | 5.47 ms        | **5.86 ms**                 | loss 1.07× |
 
 This flips the prior honest loss (vLLM 307 vs Tesseract eager 77 FP32 / 116
 INT8). What changed, all landed this cycle:
@@ -173,17 +173,27 @@ INT8). What changed, all landed this cycle:
    fused FlashAttention kernel (`prefill_attention_gqa`), eliminating both the
    composite path's 6-launch + score-matrix HBM round trip and the `repeat_kv` 8×
    KV materialization (TTFT 14.4 → 7.3 ms).
+5. **WMMA tensor-core prefill attention (B-024+)** — the prefill FlashAttention
+   now runs both matmuls on the FP16 tensor cores (`fused_attention_wmma_kernel`),
+   3.8–5.1× the cuBLASLt composite on prompt 512–2048 (TTFT 7.28 → 6.59 ms).
+6. **Stride-aware / BSHD attention layout (B-024c)** — the prefill kernels read
+   the permuted Q and KV-cache narrows in place via element-strides and write
+   output in BSHD, removing the per-layer `contiguous`/transpose copies
+   (`strided_copy` 25.8 % → 15.9 % of prefill GPU time; TTFT 6.59 → 5.86 ms).
 
-**Why decode wins but TTFT does not.** Decode is HBM-bound: both engines stream
-the same FP16 weight bytes, and Tesseract's graph-captured loop edges ahead
+**Why decode wins but TTFT is still a hair behind.** Decode is HBM-bound: both
+engines stream the same FP16 weight bytes, and Tesseract's graph-captured loop
+edges ahead
 (321 vs 306 tok/s, ~1.36× the 2.29 ms HBM floor). Prefill is cuBLAS-GEMM-bound:
 the FFN + projection GEMMs at M=128 are ~5.2 ms on **both** engines (same vendor
 library, same weights), so TTFT cannot be won by a large margin at matched FP16.
-Our remaining 1.8 ms TTFT gap is the fused-attention kernel still using CUDA-core
-(not tensor-core/WMMA) accumulation plus the un-fused norm/rope/residual
-elementwise ops that vLLM's inductor fuses — a documented WMMA-FlashAttention
-follow-up (B-024). Recorded honestly: decode/e2e are clear wins; TTFT is a
-narrowed, GEMM-floor-bound residual.
+The WMMA tensor-core prefill (B-024+) and the stride-aware/BSHD attention-layout
+pass (B-024c) closed almost all of the original gap — TTFT 7.28 → 6.59 → **5.86
+ms** (now within 7 % of vLLM's 5.47, gap 1.33× → 1.07×). The residual is the
+shared cuBLAS GEMM floor plus the un-fused norm/RoPE/residual elementwise ops
+that vLLM's inductor fuses — a BSHD-native RoPE + epilogue-fusion follow-up
+(B-024e). Recorded honestly: decode/e2e are clear wins; TTFT is a narrowed,
+GEMM-floor-bound residual.
 
 ## Status
 
@@ -194,7 +204,9 @@ Updated (2026-06-25): the full-model serving axis (row 14) flipped from the one
 honest loss to a **decode-throughput + end-to-end-latency win** vs vLLM FP16,
 via FP16 model loading, capture-safe Storage, whole-model CUDA-graph
 capture/replay (decode + prefill), and GQA-native fused decode/prefill
-attention. Both test suites are green under strict isolation on clean cards
-(CUDA build 529/529, CPU build 552/552). The only sub-metric still behind vLLM is
-TTFT/prefill (row 14b), bounded by the shared cuBLAS GEMM floor; closing it
-fully needs the WMMA tensor-core FlashAttention + elementwise fusion follow-up.
+attention, plus the WMMA tensor-core prefill (B-024+) and stride-aware/BSHD
+attention-layout (B-024c) passes that cut TTFT 7.28 → 5.86 ms. Both test suites
+are green under strict isolation on clean cards (CUDA build 529/529, CPU build
+552/552). The only sub-metric still behind vLLM is TTFT/prefill (row 14b), now
+within 7 % (5.86 vs 5.47 ms, 1.07×) and bounded by the shared cuBLAS GEMM floor;
+closing it fully needs the BSHD-native RoPE + elementwise-fusion follow-up (B-024e).
