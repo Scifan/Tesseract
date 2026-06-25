@@ -1,4 +1,32 @@
-# Tesseract
+<div align="center">
+
+<h1>
+  Tesseract
+  <img src="https://github.githubassets.com/images/icons/emoji/unicode/1f4a0.png" alt="💠" width="52" height="52" style="vertical-align: middle; margin-left: 10px;">
+</h1>
+
+## C++20 训练与推理统一的深度学习框架
+
+*同一 IR、同一运行时 —— 从 MNIST 到 Llama 级 LLM，训练与服务一站搞定。*
+
+<br>
+
+![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20Windows-555?style=flat-square)
+![C++](https://img.shields.io/badge/C%2B%2B-20-00599C?style=flat-square&logo=cplusplus&logoColor=white)
+![Backend](https://img.shields.io/badge/Backend-CPU%20%2B%20CUDA-76B900?style=flat-square&logo=nvidia&logoColor=white)
+![IR](https://img.shields.io/badge/IR-MLIR-FF6F00?style=flat-square)
+![Frontend](https://img.shields.io/badge/Frontend-Python%20%7C%20Studio-4CAF50?style=flat-square)
+![Benchmark](https://img.shields.io/badge/Decode%20vs%20vLLM-+5.0%25-43A047?style=flat-square)
+![Tests](https://img.shields.io/badge/Tests-552%20CPU%20%7C%20529%20CUDA-2196F3?style=flat-square)
+![Status](https://img.shields.io/badge/Status-M5%20进行中-FFC107?style=flat-square)
+
+<br>
+
+[架构设计](docs/architecture.md) · [快速开始](#quick-start-cpu-no-llvm-required) · [里程碑](#status) · [Studio](studio/README.md) · [性能基准](docs/design/external-benchmark.md) · [文档](#documentation)
+
+</div>
+
+---
 
 > A C++20 deep-learning framework with a training–inference-unified IR from day one.
 
@@ -21,14 +49,15 @@ framework now trains and serves real LLMs end-to-end on CPU and CUDA, with a
 shared training/inference IR, a full CUDA kernel stack, and an external
 benchmark scoreboard that wins or ties every measured axis.
 
-| Milestone | Scope | Status |
-|-----------|-------|--------|
-| **M0** — Foundation | Core tensor types, CPU kernels, tape autograd (gradcheck), `nn` modules, `optim` (SGD/Adam), MNIST (96.7 % @ 3 epochs) | ✅ done |
-| **M1** — Graph IR + lowering | MLIR `tesseract` dialect, GraphScope capture → MLIR, `→ linalg` conversion, autograd-as-graph-transform, in-process JIT (`mnist --engine mlir`, **7–11× eager** on lowerable shapes) | ✅ done |
-| **M2** — CUDA backend + kernel stack | HAL (allocator / stream / event), cuBLASLt matmul (FP32/FP16/BF16), fused softmax / RMSNorm / SwiGLU / attention, shape/index ops, fused Adam; CUDA + CPU ctest green | ✅ done |
-| **M3** — LLM inference stack | HF BPE tokenizer, KV cache, RoPE, GQA, autoregressive `generate` + sampling, paged KV, continuous-batching scheduler, INT8/INT4 quantization | ✅ done |
-| **M4** — Performance + architectures + Python | Fused GPU MoE + Mamba, real NCCL multi-GPU TP (fwd+bwd parity), IR GPU JIT, FP8 GEMM, **pybind11 Python frontend**, and a 14-row external scoreboard vs **llama.cpp / PyTorch / vLLM / FlashDecoding** — all win or tie | ✅ done |
-| **M5** — Edge + open-source release | ExecuTorch-style AOT compile to `.tsrct` bundles, Metal / WebGPU / WASM backends (mobile + browser), license/branding/release hygiene. Early adoption track shipped: **Tesseract Studio** (Scratch-like native-C++ visual block builder, B-047, no Python). DiT runtime is the deferred gated tail. | 🔄 in progress |
+
+| Milestone                                      | Scope                                                                                                                                                                                                                                                                                              | Status         |
+| ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
+| **M0** — Foundation                           | Core tensor types, CPU kernels, tape autograd (gradcheck),`nn` modules, `optim` (SGD/Adam), MNIST (96.7 % @ 3 epochs)                                                                                                                                                                              | ✅ done        |
+| **M1** — Graph IR + lowering                  | MLIR`tesseract` dialect, GraphScope capture → MLIR, `→ linalg` conversion, autograd-as-graph-transform, in-process JIT (`mnist --engine mlir`, **7–11× eager** on lowerable shapes)                                                                                                            | ✅ done        |
+| **M2** — CUDA backend + kernel stack          | HAL (allocator / stream / event), cuBLASLt matmul (FP32/FP16/BF16), fused softmax / RMSNorm / SwiGLU / attention, shape/index ops, fused Adam; CUDA + CPU ctest green                                                                                                                              | ✅ done        |
+| **M3** — LLM inference stack                  | HF BPE tokenizer, KV cache, RoPE, GQA, autoregressive`generate` + sampling, paged KV, continuous-batching scheduler, INT8/INT4 quantization                                                                                                                                                        | ✅ done        |
+| **M4** — Performance + architectures + Python | Fused GPU MoE + Mamba, real NCCL multi-GPU TP (fwd+bwd parity), IR GPU JIT, FP8 GEMM,**pybind11 Python frontend**, and a 14-row external scoreboard vs **llama.cpp / PyTorch / vLLM / FlashDecoding** — all win or tie                                                                            | ✅ done        |
+| **M5** — Edge + open-source release           | ExecuTorch-style AOT compile to`.tsrct` bundles, Metal / WebGPU / WASM backends (mobile + browser), license/branding/release hygiene. Early adoption track shipped: **Tesseract Studio** (Scratch-like native-C++ visual block builder, B-047, no Python). DiT runtime is the deferred gated tail. | 🔄 in progress |
 
 ### Performance highlights (measured, reproducible under strict GPU isolation)
 
@@ -190,22 +219,23 @@ framework/
 
 All options are prefixed `TESSERACT_`:
 
-| Option                       | Default | Purpose                                              |
-|------------------------------|---------|------------------------------------------------------|
-| `TESSERACT_BUILD_TESTS`      | `ON`    | Build Catch2-based unit tests                        |
-| `TESSERACT_BUILD_EXAMPLES`   | `OFF`   | Build example executables (MNIST, `llama_infer`, `llama_train`) |
-| `TESSERACT_BUILD_BENCHMARKS` | `OFF`   | Build the micro + serving benchmarks                 |
-| `TESSERACT_ENABLE_MLIR`      | `OFF`   | Build the MLIR dialect + `tesseract-opt`             |
-| `TESSERACT_ENABLE_CUDA`      | `OFF`   | Build the CUDA backend (CUDA Toolkit 12.x + `nvcc`)  |
-| `TESSERACT_ENABLE_NCCL`      | `OFF`   | Build the NCCL multi-GPU collective backend          |
-| `TESSERACT_ENABLE_FP8`       | `OFF`   | Enable Ada/Hopper FP8 (E4M3/E5M2) GEMM paths         |
-| `TESSERACT_ENABLE_CUTLASS`   | `OFF`   | Fetch CUTLASS for custom / grouped-GEMM kernels      |
-| `TESSERACT_BUILD_PYTHON`     | `OFF`   | Build the pybind11 Python frontend (`tesseract._core`) |
-| `TESSERACT_BUILD_STUDIO`     | `OFF`   | Build Tesseract Studio (visual block builder)        |
-| `TESSERACT_ENABLE_OPENMP`    | `ON`    | Enable OpenMP-parallel CPU kernels (auto-detected)   |
-| `TESSERACT_USE_EIGEN`        | `OFF`   | Use Eigen as the reference linalg backend            |
-| `TESSERACT_WERROR`           | `OFF`   | `-Werror` / `/WX`                                    |
-| `TESSERACT_NATIVE_ARCH`      | `OFF`   | Pass `-march=native` (enables AVX2 auto-vectorization) |
+
+| Option                       | Default | Purpose                                                        |
+| ------------------------------ | --------- | ---------------------------------------------------------------- |
+| `TESSERACT_BUILD_TESTS`      | `ON`    | Build Catch2-based unit tests                                  |
+| `TESSERACT_BUILD_EXAMPLES`   | `OFF`   | Build example executables (MNIST,`llama_infer`, `llama_train`) |
+| `TESSERACT_BUILD_BENCHMARKS` | `OFF`   | Build the micro + serving benchmarks                           |
+| `TESSERACT_ENABLE_MLIR`      | `OFF`   | Build the MLIR dialect +`tesseract-opt`                        |
+| `TESSERACT_ENABLE_CUDA`      | `OFF`   | Build the CUDA backend (CUDA Toolkit 12.x +`nvcc`)             |
+| `TESSERACT_ENABLE_NCCL`      | `OFF`   | Build the NCCL multi-GPU collective backend                    |
+| `TESSERACT_ENABLE_FP8`       | `OFF`   | Enable Ada/Hopper FP8 (E4M3/E5M2) GEMM paths                   |
+| `TESSERACT_ENABLE_CUTLASS`   | `OFF`   | Fetch CUTLASS for custom / grouped-GEMM kernels                |
+| `TESSERACT_BUILD_PYTHON`     | `OFF`   | Build the pybind11 Python frontend (`tesseract._core`)         |
+| `TESSERACT_BUILD_STUDIO`     | `OFF`   | Build Tesseract Studio (visual block builder)                  |
+| `TESSERACT_ENABLE_OPENMP`    | `ON`    | Enable OpenMP-parallel CPU kernels (auto-detected)             |
+| `TESSERACT_USE_EIGEN`        | `OFF`   | Use Eigen as the reference linalg backend                      |
+| `TESSERACT_WERROR`           | `OFF`   | `-Werror` / `/WX`                                              |
+| `TESSERACT_NATIVE_ARCH`      | `OFF`   | Pass`-march=native` (enables AVX2 auto-vectorization)          |
 
 ---
 
