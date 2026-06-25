@@ -2,7 +2,7 @@
 
 <h1>
   Tesseract
-  <img src="https://github.githubassets.com/images/icons/emoji/unicode/1f4a0.png" alt="💠" width="52" height="52" style="vertical-align: middle; margin-left: 10px;">
+  <img src="https://github.githubassets.com/images/icons/emoji/unicode/1f4a0.png" alt="💠" width="25" height="25" style="vertical-align: middle; margin-left: 10px;">
 </h1>
 
 ## C++20 训练与推理统一的深度学习框架
