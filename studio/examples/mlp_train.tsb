@@ -1,0 +1,27 @@
+{
+  "tsb_version": 1,
+  "name": "mlp_train",
+  "device": "cpu",
+  "nodes": [
+    {"id": 1, "kind": "Input", "params": {"batch": 32, "features": 8}, "x": 80, "y": 80},
+    {"id": 2, "kind": "Linear", "params": {"in_features": 8, "out_features": 32, "bias": true}, "x": 300, "y": 80},
+    {"id": 3, "kind": "ReLU", "params": {}, "x": 520, "y": 80},
+    {"id": 4, "kind": "Linear", "params": {"in_features": 32, "out_features": 3, "bias": true}, "x": 700, "y": 80},
+    {"id": 5, "kind": "SequentialModel", "params": {}, "x": 920, "y": 80},
+    {"id": 6, "kind": "SyntheticClassification", "params": {"samples": 256, "features": 8, "classes": 3, "seed": 0}, "x": 300, "y": 280},
+    {"id": 7, "kind": "Adam", "params": {"lr": 0.05, "beta1": 0.9, "beta2": 0.999, "eps": 1e-08}, "x": 920, "y": 260},
+    {"id": 8, "kind": "CrossEntropyLoss", "params": {}, "x": 920, "y": 380},
+    {"id": 9, "kind": "TrainLoop", "params": {"epochs": 50, "batch_size": 32}, "x": 1160, "y": 200}
+  ],
+  "edges": [
+    {"from": {"node": 1, "port": "out"}, "to": {"node": 2, "port": "in"}},
+    {"from": {"node": 2, "port": "out"}, "to": {"node": 3, "port": "in"}},
+    {"from": {"node": 3, "port": "out"}, "to": {"node": 4, "port": "in"}},
+    {"from": {"node": 4, "port": "out"}, "to": {"node": 5, "port": "in"}},
+    {"from": {"node": 5, "port": "model"}, "to": {"node": 7, "port": "model"}},
+    {"from": {"node": 5, "port": "model"}, "to": {"node": 9, "port": "model"}},
+    {"from": {"node": 6, "port": "data"}, "to": {"node": 9, "port": "data"}},
+    {"from": {"node": 7, "port": "opt"}, "to": {"node": 9, "port": "optimizer"}},
+    {"from": {"node": 8, "port": "loss"}, "to": {"node": 9, "port": "loss"}}
+  ]
+}

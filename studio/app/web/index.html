@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tesseract Studio</title>
+  <link rel="stylesheet" href="/vendor/litegraph.css" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header id="topbar">
+    <span class="logo">Tesseract <b>Studio</b></span>
+    <input id="graph-name" value="untitled" title="Graph name" />
+    <select id="device" title="Run device">
+      <option value="cpu">CPU</option>
+      <option value="cuda">CUDA</option>
+    </select>
+    <span class="spacer"></span>
+    <button id="btn-run" class="primary" title="Run on the embedded engine">▶ Run</button>
+    <button id="btn-stop" disabled>■ Stop</button>
+    <button id="btn-validate">Validate</button>
+    <span class="sep"></span>
+    <button id="btn-ir" title="Show the tesseract-dialect IR">IR</button>
+    <button id="btn-cpp">C++</button>
+    <button id="btn-py">Python</button>
+    <span class="sep"></span>
+    <button id="btn-save">Save</button>
+    <button id="btn-open">Open</button>
+    <button id="btn-examples">Examples ▾</button>
+    <button id="btn-clear">Clear</button>
+    <input id="file-input" type="file" accept=".tsb,.cpp,.py,.txt" hidden />
+    <div id="examples-menu" class="menu hidden">
+      <div data-ex="mlp">MLP training (Tensor → Linear → Train)</div>
+      <div data-ex="llama">Llama generation</div>
+      <div data-ex="tensor">Tensor &amp; autograd playground</div>
+    </div>
+  </header>
+
+  <main>
+    <aside id="palette">
+      <div class="palette-head">
+        <h3>Blocks</h3>
+        <input id="palette-search" placeholder="filter…" />
+      </div>
+      <div id="palette-list"></div>
+      <div class="palette-foot">Click to add · drag onto canvas · double-click canvas to search</div>
+    </aside>
+
+    <section id="canvas-wrap">
+      <canvas id="graph-canvas" tabindex="0"></canvas>
+      <div id="canvas-hud"></div>
+    </section>
+
+    <aside id="inspector">
+      <h3>Inspector</h3>
+      <div id="inspector-body"><p class="hint">Select a block to edit its parameters.</p></div>
+    </aside>
+  </main>
+
+  <section id="bottom">
+    <div class="tabs">
+      <button data-tab="diag" class="tab active">Diagnostics</button>
+      <button data-tab="train" class="tab">Training</button>
+      <button data-tab="tensors" class="tab">Tensors</button>
+      <button data-tab="out" class="tab">Output</button>
+      <button data-tab="ir" class="tab">IR</button>
+      <button data-tab="code" class="tab">Code</button>
+      <button data-tab="log" class="tab">Log</button>
+    </div>
+    <div class="panes">
+      <div id="pane-diag" class="pane active"></div>
+      <div id="pane-train" class="pane">
+        <canvas id="loss-chart" width="900" height="220"></canvas>
+        <div id="train-stats"></div>
+      </div>
+      <div id="pane-tensors" class="pane"><div id="tensor-grid" class="hint">Run a graph ending in a <b>Tensor → Inspect</b> block to see values &amp; gradients.</div></div>
+      <div id="pane-out" class="pane"><div id="gen-text"></div><div id="gen-tokens"></div></div>
+      <div id="pane-ir" class="pane"><pre id="ir-out" class="code">Press <b>IR</b> to lower the current blocks to tesseract-dialect MLIR.</pre></div>
+      <div id="pane-code" class="pane"><pre id="code-out" class="code"></pre></div>
+      <div id="pane-log" class="pane"><div id="log-out"></div></div>
+    </div>
+  </section>
+
+  <script src="/vendor/litegraph.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>

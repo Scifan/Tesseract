@@ -1,0 +1,84 @@
+# --- Build outputs (never commit) -------------------------------------------
+build/
+build-*/
+out/
+cmake-build-*/
+
+# CMake artifacts
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Testing/
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps/
+
+# --- Third-party: fetch / build locally (never commit binaries) -------------
+third_party/llvm-project/
+third_party/llvm-install/
+third_party/llvm-build/
+third_party/ninja/
+third_party/build_llvm.log
+# External benchmark checkout — clone separately or use submodule (see README)
+third_party/llama.cpp/
+
+# --- Data & model weights ---------------------------------------------------
+data/
+*.ubyte
+*.gguf
+*.safetensors
+*.pt
+*.pth
+*.onnx
+*.ckpt
+*.bin
+
+# --- Python -----------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+.venv/
+venv/
+.pytest_cache/
+
+# --- Editor / IDE / local tooling -------------------------------------------
+.vscode/*
+!.vscode/settings.json.example
+.idea/
+*.swp
+*.swo
+.DS_Store
+.cache/
+
+# Cursor / agent session artifacts (local only)
+.specstory/
+.cursor/
+
+# --- Compiled objects -------------------------------------------------------
+*.o
+*.obj
+*.a
+*.so
+*.so.*
+*.dylib
+*.dll
+*.lib
+*.pdb
+*.exe
+*.out
+
+# --- Generated docs ---------------------------------------------------------
+docs/_build/
+
+# --- Secrets (never commit) -------------------------------------------------
+.env
+.env.*
+*.pem
+*.key
+credentials.json
