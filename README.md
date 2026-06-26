@@ -9,9 +9,6 @@ training and served inference. Today it trains models from MNIST to Llama-class
 LLMs and serves them on CPU and CUDA — matching or beating llama.cpp, PyTorch,
 and vLLM on every measured benchmark axis (see below).
 
-See [`idea.md`](idea.md) for the motivation and 24-month roadmap, and
-[`docs/architecture.md`](docs/architecture.md) for the layered design.
-
 ---
 
 ## Status
