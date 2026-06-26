@@ -280,7 +280,7 @@ framework/
 ├── benchmarks/                 # micro + serving benchmarks (CPU + CUDA)
 ├── bench/external/             # external-framework scoreboard + results
 ├── scripts/                    # bootstrap.sh / build_llvm.sh / fetch_mnist.sh
-├── docs/                       # architecture.md / roadmap.md / m*-plan.md / adr/ / design/
+├── docs/                       # architecture / roadmap / m*-plan / backlog / issue / adr/ / design/ / benchmarks/
 └── idea.md                     # design doc (authoritative for direction)
 ```
 
@@ -311,14 +311,33 @@ All options are prefixed `TESSERACT_`:
 
 ## Documentation
 
+**Direction & architecture**
 - [`idea.md`](idea.md) — motivation, theses, and the 24-month milestone plan (authoritative for direction).
-- [`docs/architecture.md`](docs/architecture.md) — the layered design (HAL → ops → autograd → nn → models).
-- [`docs/roadmap.md`](docs/roadmap.md) — per-milestone delivery log (M0–M5).
-- [`docs/m4-plan.md`](docs/m4-plan.md) — the M4 performance-closeout plan + exit bar.
-- [`docs/backlog.md`](docs/backlog.md) — the engineering backlog (open + resolved items, e.g. B-024 attention).
-- [`docs/design/external-benchmark.md`](docs/design/external-benchmark.md) — the external scoreboard methodology + 14-row results.
-- [`docs/adr/`](docs/adr/) — architecture decision records.
-- [`studio/README.md`](studio/README.md) — the Tesseract Studio visual builder.
+- [`docs/architecture.md`](docs/architecture.md) — code-level layered design (core → ops → autograd → nn → models → IR) and how each layer evolves through M5.
+- [`docs/roadmap.md`](docs/roadmap.md) — per-milestone delivery log (M0–M5), each closed by a demo + verification bar.
+
+**Milestone plans** (scope, tracks, and exit bars per milestone)
+- [`docs/m1-plan.md`](docs/m1-plan.md) — M1 graph IR + MLIR lowering + JIT.
+- [`docs/m2-plan.md`](docs/m2-plan.md) — M2 CUDA backend + kernel stack.
+- [`docs/m3-plan.md`](docs/m3-plan.md) — M3 LLM inference as a first-class citizen.
+- [`docs/m4-plan.md`](docs/m4-plan.md) — M4 non-Transformer architectures + adoption + one-IR coherence (closeout: done).
+
+**Design notes** ([`docs/design/`](docs/design/))
+- [`external-benchmark.md`](docs/design/external-benchmark.md) — the external scoreboard methodology + 14-row results vs llama.cpp / PyTorch / vLLM.
+- [`moe-sparse.md`](docs/design/moe-sparse.md) — fused MoE sparse token dispatch (vs dense masking).
+- [`mamba-scaling.md`](docs/design/mamba-scaling.md) — Mamba O(1) vs Llama O(L) decode scaling.
+- [`tensor-parallel.md`](docs/design/tensor-parallel.md) — Megatron-style TP as a sharding transform.
+- [`kv-cache-ir.md`](docs/design/kv-cache-ir.md) — KV cache & dynamic shape as IR concepts (M4 track C2).
+
+**Benchmarks & engineering records**
+- [`docs/benchmarks/m2-cuda.md`](docs/benchmarks/m2-cuda.md) — the M2 CUDA micro-benchmark ledger.
+- [`bench/external/README.md`](bench/external/README.md) — the external-framework benchmark harness; raw results in [`bench/external/results/`](bench/external/results/).
+- [`docs/backlog.md`](docs/backlog.md) — deferred items + resolutions, each with a definition of done (e.g. B-024 WMMA/BSHD attention).
+- [`docs/issue.md`](docs/issue.md) — the M4 closeout self-review (evidence-based critique + how each gap was resolved).
+
+**Decisions & frontends**
+- [`docs/adr/`](docs/adr/) — architecture decision records (ADR-0001…0007; see [Contributing](#contributing) for the list).
+- [`studio/README.md`](studio/README.md) — the Tesseract Studio visual block builder.
 
 ---
 
