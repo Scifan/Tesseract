@@ -563,7 +563,7 @@ function setupCanvas() {
   canvas.render_canvas_border = false;
   canvas.links_render_mode = LiteGraph.SPLINE_LINK;
   canvas.always_render_background = false;
-  canvas.clear_background_color = "#0e1422";
+  canvas.clear_background_color = "transparent";
   canvas.node_title_color = "#dce6ff";
   canvas.default_link_color = "#5b7bd0";
   canvas.onNodeSelected = (n) => showInspector(n);
